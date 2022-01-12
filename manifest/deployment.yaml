@@ -18,7 +18,7 @@ spec:
         app: argo-test
     spec:
       containers:
-      - image: nginx:apline
+      - image: nginx:alpine
         name: nginx
         ports:
         - containerPort: 80
