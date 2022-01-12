@@ -1,0 +1,13 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-deploy
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/mjmanas0699/argo.git
+    targetRevision: HEAD
+    path: manifest
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
