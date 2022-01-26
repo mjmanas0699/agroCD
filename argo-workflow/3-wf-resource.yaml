@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: resource-generator
+spec:
+  entrypoint: resource-generator #run as a first container pick name from template
+  templates:
+    - name: resource-generator # Defining the "python" template
+      resource: 
+         action: create
+         manifest: |
+            apiVersion: argoproj.io/v1alpha1
+            kind: Workflow
+            metadata:
+              generateName: python-template-
+            spec:
+              entrypoint: test #run as a first container pick name from template
+              templates:
+                - name: test # Defining the "python" template
+                  script: #defining script tag
+                    image: python:alpine3.6
+                    command: [python]
+                    source: |
+                      for i in range(50):
+                          print(i)

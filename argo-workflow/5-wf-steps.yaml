@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: steps-wf
+spec:
+  entrypoint: run-template-sequentially
+  templates:
+    - name: run-template-sequentially          
+      steps: 
+      - - name: step1
+          template: steps
+      - - name: step2
+          template: steps
+        - name: step3           # if we remove outer list then the steps will parallelly step 2 will run along with 3
+          template: steps
+      - - name: step4
+          template: suspend            #before going to step 5 step 4 will suspend it till 10SEC as mentioned on line 30
+      - - name: step5
+          template: steps
+    - name: steps
+      script: 
+        image: python:alpine3.6
+        command: [python]
+        source: |
+          import random
+          i = random.randint(1, 100)
+          print(i)
+    - name: suspend
+      suspend:
+        duration: "10s" 
+
+
+#A steps template allows you to define your tasks in a series of steps. 
+#The structure of the template is a "list of lists". 
+#Outer lists will run sequentially and inner lists will run in parallel.

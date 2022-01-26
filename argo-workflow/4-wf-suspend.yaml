@@ -1,0 +1,12 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: suspend 
+spec:
+  entrypoint: suspend 
+  templates:
+    - name: suspend
+      suspend:
+        duration: "20s" #start after 20SEC
+
+#A suspend template will suspend execution, either for a duration or until it is resumed manually.
