@@ -1,0 +1,39 @@
+#A dag template allows you to define your tasks as a graph of dependencies. 
+#In a DAG, you list all your tasks and set which other tasks must complete before a particular task can begin. 
+#Tasks without any dependencies will be run immediately.
+
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: steps-wf
+spec:
+  entrypoint: run-template-sequentially
+  templates:
+    - name: run-template-sequentially          
+      dag: 
+        tasks:
+        - name: step1
+          template: steps
+        - name: step2
+          template: steps
+          dependencies: [step1]
+        - name: step3 
+          template: fail
+          dependencies: [step2]
+        - name: step4
+          template: steps
+          dependencies: [step3]
+    - name: steps
+      script: 
+        image: python:alpine3.6
+        command: [python]
+        source: |
+          import random
+          i = random.randint(1, 100)
+          print(i)
+    - name: fail
+      container: 
+        image: alpine
+        command: [python]
+    
+

@@ -1,0 +1,63 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: steps-wf
+spec:
+  entrypoint: run-template-sequentially
+  templates: 
+    - name: run-template-sequentially          
+      dag: 
+        tasks:
+        - name: stepA
+          template: A
+        - name: stepb-1
+          template: B
+          dependencies: [stepA]
+        - name: stepb-2
+          template: B
+          dependencies: [stepb-1]
+        - name: stepb-3
+          template: B
+          dependencies: [stepb-2]
+        - name: stepc-1
+          template: C
+          dependencies: [stepA]
+        - name: D 
+          template: D
+          dependencies: [stepb-3,stepc-1]
+        - name: A
+          template: A
+          dependencies: [D]
+        
+#----------------WORKFLOW-1-----------------------------
+    - name: A
+      script: 
+        image: python:alpine3.6
+        command: [python]
+        source: |
+          print("TASK A executed successfully with script tempalte")
+    - name: B
+      container: 
+        image: docker/whalesay
+        command: [cowsay]
+        args: ["task b"]
+    - name: C 
+      resource: 
+         action: create
+         manifest: |
+          apiVersion: argoproj.io/v1alpha1
+          kind: Workflow
+          metadata:
+            name: resource-generator
+          spec:
+            entrypoint: C
+            templates: 
+              - name: C
+                script: 
+                  image: python:alpine3.6
+                  command: [python]
+                  source: |
+                    print("TASK C executed successfully with resource tempalte")
+    - name: D
+      suspend:
+        duration: "5s" 
